@@ -4,15 +4,11 @@ Welcome to **LagosPropIQ** — a collaborative data intelligence project focused
 
 This guide provides clear instructions for interns and contributors to collaborate efficiently, maintain clean code, and ensure data consistency across the repository.
 
----
-
 ## 🗂️ Repository Overview
 
 **Repository Name:** `LagosPropIQ`  
 **Purpose:** To collect, clean, and analyze real estate data across Lagos from multiple online sources.  
 **Primary Contributors:** Data Science & Data Analysis Interns  
-
----
 
 ## 🚀 Step 1: Cloning the Repository
 
@@ -24,6 +20,7 @@ git clone https://github.com/intellisenseCodez/LagosPropIQ.git
 
 # Move into the project directory
 cd LagosPropIQ
+```
 
 ## 🌿 Step 2: Creating Your Working Branch
 
@@ -31,10 +28,10 @@ Each collaborators must work on a separate branch to avoid conflicts.
 Use this naming convention:
 feature/<name>-<task> (e.g., feature/john-scraper)
 
-``bash
+```bash
 # Create a new branch from the main branch
 git checkout -b feature/john-scraper
-``
+```
 
 ✅ **Always create your branch from** `main`.
 ❌ **Do not work directly on the** `main` **branch**.
