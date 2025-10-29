@@ -103,7 +103,7 @@ Resolve any conflicts if prompted, then push again.
 
 ## 🗃️ Folder Structure
 
-``bash
+```bash
 LagosPropIQ/
 │
 ├── data/                     # All raw and processed data
