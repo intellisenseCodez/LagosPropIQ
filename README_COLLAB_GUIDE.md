@@ -26,11 +26,11 @@ cd LagosPropIQ
 
 Each collaborators must work on a separate branch to avoid conflicts.
 Use this naming convention:
-feature/<name>-<task> (e.g., feature/john-scraper)
+feature/<name>-<task> (e.g., feature/john-doe-property-scraper)
 
 ```bash
 # Create a new branch from the main branch
-git checkout -b feature/john-scraper
+git checkout -b feature/john-doe-property-scraper
 ```
 
 ✅ **Always create your branch from** `main`.
