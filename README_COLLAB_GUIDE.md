@@ -64,7 +64,7 @@ git add .
 git commit -m "feat: add scraper for PropertyPro listings"
 git commit -m "fix: clean duplicate entries in NigeriaPropertyCentre dataset"
 git commit -m "docs: update collaboration guide"
-``
+```
 ## 🔄 Step 5: Pushing Your Branch to GitHub
 
 Once your work is ready to share or review:
