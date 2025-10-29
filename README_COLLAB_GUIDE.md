@@ -75,15 +75,13 @@ git push origin <your-branch-name>
 
 ## 🧩 Step 6: Creating a Pull Request (PR)
 
-1. Go to the GitHub repository in your browser.
-
-2. You’ll see a prompt to create a Pull Request (PR) for your branch.
-
-3. Add a clear title and description (e.g., “Added PropertyPro scraping module”).
-
-4. Assign your reviewer or team lead.
-
-5. Wait for review and approval before merging to main.
+1. Go to GitHub → Open the repository.
+2. Click **“Compare & Pull Request.”**
+3. Fill in details:
+   - **Title****: Short and descriptive (e.g., “Added PropertyPro Scraper Script”)
+   - **Description**: Briefly explain what your script does.
+   - **Reviewer**: Assign the project lead or mentor.
+4. Wait for review and approval before merging to main.
 
 ✅ **Do not merge your own PRs** unless given permission.
 
