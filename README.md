@@ -68,6 +68,6 @@ Ensure all data collected respects each website’s robots.txt policy and terms 
 
 
 ## 📍Project Maintainer:
-Lead: Oyekanmi Lekan
-Email: [oyekanmilekan@gmail.com](oyekanmilekan@gmail.com)
-GitHub: [github.com/intellisenseCodez](https://github.com/intellisenseCodez/)
+- **Lead**: Oyekanmi Lekan
+- **Email**: [oyekanmilekan@gmail.com](oyekanmilekan@gmail.com)
+- **GitHub**: [github.com/intellisenseCodez](https://github.com/intellisenseCodez/)
