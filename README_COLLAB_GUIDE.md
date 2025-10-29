@@ -34,31 +34,32 @@ git checkout -b feature/john-doe-property-scraper
 ```
 
 ✅ **Always create your branch from** `main`.
+
 ❌ **Do not work directly on the** `main` **branch**.
 
 ## 💾 Step 3: Pulling Updates Before Working
 
 Before starting new work, sync your local repo with the latest version of `main`:
 
-``bash
+```bash
 git checkout main
 git pull origin main
-``
+```
 
 Then switch back to your branch:
 
-``bash
+```bash
 git checkout <your-branch-name>
-``
+```
 
 ## 🧠 Step 4: Committing Your Work
 
-Use clear and meaningful commit messages.
-Good commit messages make it easy to track project progress.
+- Use clear and meaningful commit messages.
+- Good commit messages make it easy to track project progress.
 
 **Format Examples:**
 
-``bash
+```bash
 git add .
 git commit -m "feat: add scraper for PropertyPro listings"
 git commit -m "fix: clean duplicate entries in NigeriaPropertyCentre dataset"
@@ -68,9 +69,9 @@ git commit -m "docs: update collaboration guide"
 
 Once your work is ready to share or review:
 
-``bash
+```bash
 git push origin <your-branch-name>
-``
+```
 
 ## 🧩 Step 6: Creating a Pull Request (PR)
 
@@ -86,16 +87,17 @@ git push origin <your-branch-name>
 
 ✅ **Do not merge your own PRs** unless given permission.
 
+
 ## 🧹 Step 7: Keeping Your Branch Up-to-Date
 
 If your PR is pending and main has changed, rebase or merge the latest updates:
 
-``bash
+```bash
 git checkout main
 git pull origin main
 git checkout <your-branch-name>
 git merge main
-``
+```
 
 Resolve any conflicts if prompted, then push again.
 
@@ -143,8 +145,6 @@ LagosPropIQ/
 - For urgent clarifications, contact the Project Lead.
 - Use clear titles and tags for all issues and pull requests.
 
-Would you like me to also create a **`CONTRIBUTING.md`** file to complement this, outlining coding standards and PR review workflow 
-(e.g., how to submit data scripts, notebook naming rules, etc.)? It’ll make your repo look more professional and open-source–ready.
 
 
 
