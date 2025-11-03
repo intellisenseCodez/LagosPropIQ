@@ -104,16 +104,17 @@ Resolve any conflicts if prompted, then push again.
 ```bash
 LagosPropIQ/
 │
-├── data/                     # All raw and processed data
-│   ├── raw/                  # Uncleaned data from scraping
-│   └── cleaned/              # Processed or validated datasets
+├── src/ 
+│   ├── data/                     # All raw and processed data
+│        ├── raw/                  # Uncleaned data from scraping
+│        └── cleaned/              # Processed or validated datasets
 │
-├── scripts/                  # Python or notebook scripts
+|   ├── scripts/                  # Python or notebook scripts
 │   ├── scraping/             # Web scraping scripts
 │   ├── cleaning/             # Data cleaning & preprocessing scripts
 │   └── analysis/             # Exploratory and summary analysis scripts
 │
-├── notebooks/                # Jupyter notebooks for EDA or prototyping
+|   ├── notebooks/                # Jupyter notebooks for EDA or prototyping
 │
 ├── docs/                     # Documentation, reports, and guidelines
 │
@@ -124,7 +125,7 @@ LagosPropIQ/
 ## 🧱 Best Practices
 
 - Follow the branch naming convention strictly.
-- Commit frequently with clear messages.
+- Commit frequently with clear messages (e.g., “FEAT: Added scraper for PropertyPro.ng listings”).
 - Always pull the latest changes before starting new work.
 - Store large datasets in .gitignore if necessary.
 - Document your code clearly with comments and docstrings.
