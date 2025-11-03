@@ -1,0 +1,98 @@
+# ----------------------------------------
+# Python cache and build artifacts
+# ----------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.cache/
+.tox/
+.venv/
+venv/
+env/
+ENV/
+
+# ----------------------------------------
+# IDE and editor-specific files
+# ----------------------------------------
+.vscode/
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# ----------------------------------------
+# Environment and configuration
+# ----------------------------------------
+.env
+.env.*
+!.env.example
+config.json
+credentials.json
+secrets.yaml
+
+
+# ----------------------------------------
+# Logs and temporary files
+# ----------------------------------------
+logs/
+*.log
+*.out
+*.err
+tmp/
+temp/
+*.tmp
+
+# ----------------------------------------
+# Data files (raw, processed, or large)
+# ----------------------------------------
+data/
+datasets/
+scraped_data/
+output/
+exports/
+*.csv
+*.json
+*.xlsx
+*.parquet
+*.db
+*.sqlite
+*.sqlite3
+
+# Allow sample datasets for demo/testing
+!data/sample_*.csv
+!datasets/sample_*.csv
+
+# ----------------------------------------
+# Jupyter notebooks checkpoints
+# ----------------------------------------
+.ipynb_checkpoints/
+*.ipynb~
+
+# ----------------------------------------
+# OS-specific files
+# ----------------------------------------
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ----------------------------------------
+# Docker and container-related
+# ----------------------------------------
+*.pid
+*.seed
+*.pid.lock
+*.log
+docker-compose.override.yml
+
+# ----------------------------------------
+# Miscellaneous
+# ----------------------------------------
+*.bak
+*.swp
+*.orig
+*.old
