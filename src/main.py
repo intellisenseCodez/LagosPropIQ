@@ -15,9 +15,11 @@ TRANSFORM_DIR.mkdir(parents=True, exist_ok=True)
 propetypro_scraper = PropertyProScraper()
 
 # extract
-for property in propetypro_scraper.extract(pages=2):
+for property in propetypro_scraper.extract(pages=1):
+    
     # load raw
-    loader.to_csv(property, filename=RAW_DIR / "property.csv")
+    # loader.to_csv(property, filename=RAW_DIR / "property.csv")
+    print(property)
 
 
 

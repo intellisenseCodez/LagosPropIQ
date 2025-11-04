@@ -2,7 +2,8 @@ import csv
 import json
 
 def to_csv(data, filename):
-    fieldnames = data[0].keys()
+    for row in data:
+        fieldnames = row[0].keys()
 
     with open(filename, "w", newline='') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)

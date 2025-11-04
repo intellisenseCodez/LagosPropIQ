@@ -1,5 +1,6 @@
 from ..base import BaseScraper
 from .transform import Transformer
+from ...utils.page_reload import with_retries
 from src.utils.logger import get_logger
 from bs4 import BeautifulSoup
 
@@ -58,7 +59,8 @@ class PropertyProScraper(BaseScraper):
             if page_number > pages:
                 break
             else:
-                self.logger.info(f"Scraping PropertyPro.ng page {page_number}...")
+                self.logger.info(f"Scraping PropertyPro.ng page {page_number}...") 
+                
                 data = self.scrape_page(page_number)
                 
                 if data:
@@ -66,6 +68,7 @@ class PropertyProScraper(BaseScraper):
                     page_number += 1
                     time.sleep(delay)  # wait before scraping the next page
                 else:
+                    self.logger.info(f"No data found or repeated failures on page {page_number}. Stopping.")
                     break
     
     
