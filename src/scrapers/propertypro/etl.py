@@ -6,9 +6,8 @@ from bs4 import BeautifulSoup
 import time
 
 class PropertyProScraper(BaseScraper):
-    def __init__(self, transform: Transformer):
+    def __init__(self):
         super().__init__(base_url="https://www.propertypro.ng/property-for-sale")
-        self.transform = transform
         self.logger = get_logger(self.__class__.__name__)
     
 
@@ -50,20 +49,35 @@ class PropertyProScraper(BaseScraper):
 
         return results
     
-    def extract(self, pages: int = 5, delay: float = 2.0):
-        all_data = []
-
-        for page in range(1, pages + 1):
-            self.logger.info(f"Scraping PropertyPro.ng page {page}...")
-
-            data = self.scrape_page(page)
-            all_data.extend(data)
-
-            time.sleep(delay)  
-        return all_data
     
-    def transform(self):
-        pass
+    def extract(self, pages: int = None, delay: float = 2.0):
+        """Scrape multiple page of listings."""
+        page_number = 1
+
+        while True:
+            if page_number > pages:
+                break
+            else:
+                self.logger.info(f"Scraping PropertyPro.ng page {page_number}...")
+                data = self.scrape_page(page_number)
+                
+                if data:
+                    yield data # if the page has no records, stop iterating
+                    page_number += 1
+                    time.sleep(delay)  # wait before scraping the next page
+                else:
+                    break
+    
+    
+    def transform(self, data: list, transform: Transformer):
+        transform_data = []
+
+        raw_data = self.extract(pages=1)
+
+        for data in raw_data:
+            
+            transform_data.extend([])
+
 
     def load(self, db: None):
        pass

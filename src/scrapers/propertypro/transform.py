@@ -1,4 +1,5 @@
 
+from datetime import datetime
 import re
 
 class Transformer:
@@ -6,6 +7,16 @@ class Transformer:
     Transformer handles normalization and transformation of scraped data
     to maintain consistency before insertion into the database.
     """
+
+    @staticmethod
+    def normalize_text(text: str):
+        """
+        Removes excessive whitespace and standardizes casing for general text.
+        Example: "  Spacious 4 Bedroom  " -> "Spacious 4 Bedroom"
+        """
+        if not text:
+            return None
+        return re.sub(r"\s+", " ", text.strip())
 
     @staticmethod
     def clean_price(price_str: str):
@@ -33,34 +44,59 @@ class Transformer:
             return None
         return location_str.strip().title()
     
-    @staticmethod
-    def normalize_text(text: str):
-        """
-        Removes excessive whitespace and standardizes casing for general text.
-        Example: "  Spacious 4 Bedroom  " -> "Spacious 4 Bedroom"
-        """
-        if not text:
-            return None
-        return re.sub(r"\s+", " ", text.strip())
     
     @staticmethod
-    def clean_bedrooms(bedroom_str: str):
+    def normalize_property_features(text: str) -> dict:
         """
-        Extracts numeric bedroom values from strings.
-        Example: "3 Bedrooms" -> 3
+        Extract property features (beds, baths, flats, kitchen, etc.)
+        from a text string using regex.
+        
+        Example:
+            "3 Beds 4 Baths 5 flats 7 kitchen"
+            
+        Returns:
+            {'beds': 3, 'baths': 4, 'flats': 5, 'kitchen': 7}
         """
-        if not bedroom_str:
-            return None
-        match = re.search(r"\d+", bedroom_str)
-        return int(match.group()) if match else None
+        mapping = {
+            'bed': 'bedrooms',
+            'bath': 'bathrooms',
+            'flat': 'flats',
+            'kitchen': 'kitchens'
+        }
+        
+        # Find all number + word pairs (e.g., "3 Beds", "4 Baths")
+        matches = re.findall(r"(\d+)\s*([A-Za-z]+)", text)
+
+        # Convert to dictionary (keys lowercase, plural normalized)
+        features = {}
+        for num, feature in matches:
+            key = feature.lower().rstrip('s')
+            key = mapping.get(key, key)
+            features[key] = int(num)
+
+        return features
+
+
 
     @staticmethod
-    def clean_bathrooms(bathroom_str: str):
+    def normalize_update_info(text: str) -> dict:
         """
-        Extracts numeric bathroom values from strings.
-        Example: "2 Bathrooms" -> 2
+        Transform a text like 'Updated 02 Nov 2025, Added 25 Jun 2025'
+        into a dictionary with datetime objects.
         """
-        if not bathroom_str:
-            return None
-        match = re.search(r"\d+", bathroom_str)
-        return int(match.group()) if match else None
+        parts = text.split(',')
+        data = {}
+
+        for part in parts:
+            key, value = part.strip().split(' ', 1)
+            label = key.lower().replace(':', '')
+            # Extract date portion
+            date_str = value.strip().replace(label.capitalize(), '').strip()
+            try:
+                date_obj = datetime.strptime(value.strip(), "%d %b %Y")
+                data[label] = date_obj
+            except ValueError:
+                # fallback if parsing fails
+                data[label] = value.strip()
+    
+        return data
