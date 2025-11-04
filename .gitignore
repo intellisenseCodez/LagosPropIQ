@@ -98,3 +98,4 @@ docker-compose.override.yml
 *.old
 
 uv venv myenv
+.ipynb_checkpoints/
