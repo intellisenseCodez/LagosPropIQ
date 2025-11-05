@@ -1,3 +1,44 @@
 pandas
 beautifulsoup4
 requests
+
+
+
+                    price_Naira = None
+                    # I use regex to ensure I only pick the number, handling M/K suffixes.
+                    price_match = re.search(r'([\d\.,]+)([MK]?)', price_text, re.IGNORECASE)
+                    if price_match:
+                        number_part = price_match.group(1).replace(',', '').strip()
+                        suffix = price_match.group(2).upper()
+                        
+                        if number_part:
+                            try:
+                                if suffix == 'M':
+                                    price_Naira = float(number_part) * 1_000_000
+                                elif suffix == 'K':
+                                    price_Naira = float(number_part) * 1_000
+                                else:
+                                    price_Naira = float(number_part)
+                            except ValueError:
+                                price_Naira = None # I set to None if conversion fails
+
+
+Requirement
+Property Title
+listing_type:  rent or sale
+property type: category of house; flat, duplex, land e.t.c
+price: amount
+prize_per_sqm(derived): price / size_sqm
+size_sqm : size of property
+bedrooms
+bathrooms
+furnishing_status
+location
+agent_name: name of agent responsible for the listing
+agent company
+contact
+listing date
+last_updated
+image_links
+property_description: full text description o th type of property
+listing_url: the direct url link to the property
