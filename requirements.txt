@@ -24,12 +24,10 @@ requests
 
 
 Requirement
-Property Title
-listing_type:  rent or sale
-property type: category of house; flat, duplex, land e.t.c
-price: amount
-prize_per_sqm(derived): price / size_sqm
-size_sqm : size of property
+Property Title:   done_in_base_url
+listing_type:  rent or sale       	done_in_base_url
+price: amount 		done_in_base_url
+size_sqm : size of property	done_in_base_url
 bedrooms
 bathrooms
 furnishing_status
@@ -41,4 +39,5 @@ listing date
 last_updated
 image_links
 property_description: full text description o th type of property
-listing_url: the direct url link to the property
+listing_url: the direct url link to the propertyproperty type: category of house; flat, duplex, land e.t.c
+prize_per_sqm(derived): price / size_sqm
