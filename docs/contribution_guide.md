@@ -76,7 +76,7 @@ git push origin <your-branch-name>
 ## 🧩 Step 6: Creating a Pull Request (PR)
 
 1. Go to GitHub → Open the repository.
-2. Click **“Compare & Pull Request.”**
+2. Click **“Compare & Pull Request.”** to `develop` branch
 3. Fill in details:
    - **Title****: Short and descriptive (e.g., “Added PropertyPro Scraper Script”)
    - **Description**: Briefly explain what your script does.
