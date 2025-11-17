@@ -94,7 +94,7 @@ def main():
         results[category] = data
         print(f"  {category.upper()}: {len(data)} scraped")
 
-     # === FINAL SAVE TO THE RAW DATA FOLDER IN JSON FORMAT ===
+     # === FINAL SAVE TO THE RAW DATA FOLDER as "FILEPATH" IN JSON FORMAT ===
     for category, data in results.items():
         if not data:
             continue
