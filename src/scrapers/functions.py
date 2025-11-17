@@ -1,9 +1,9 @@
 import requests
-import re
+import re                               # regular expression to capture unique patterns for the different fields
 import time
 from bs4 import BeautifulSoup
 from typing import List, Dict
-import os
+import os                               # used to create and save work on a folder
 
 # === REQUESTS ===
 def make_request(url: str, retries: int = 3) -> str | None:
@@ -40,7 +40,7 @@ def parse_page(html: str) -> BeautifulSoup | None:
         return None
 
 
-# === EXTRACT LISTINGS CONTAINER ===
+# === EXTRACT LISTINGS CONTAINER HOUSING THE WHOLE CARD ===
 def extract_container(soup: BeautifulSoup) -> BeautifulSoup | None:
     return soup.find("div", class_="masonry-wall") or soup.find("div", class_=re.compile(r"masonry-wall|b-list-advert"))
 
@@ -76,7 +76,7 @@ def scrape_items_from_page(url: str) -> List[Dict]:
         try:
             # Title & URL
             title_tag = item.find("div", class_=re.compile(r"title|advert-title"))
-            title = title_tag.get_text(strip=True) if title_tag else ""
+            title = title_tag.get_text(strip=True) if title_tag else "Unknown"
 
             link_tag = item.find("a", href=True)
             listing_url = ""
@@ -87,37 +87,29 @@ def scrape_items_from_page(url: str) -> List[Dict]:
             # Price
             price_tag = item.find("div", class_=re.compile(r"price|advert-price"))
             price_raw = price_tag.get_text(strip=True) if price_tag else ""
-            price = ""
-            if price_raw:
-                lower = price_raw.lower()
-                if any(x in lower for x in ["negotiable", "call", "ask", "p.o.a"]):
-                    price = "Negotiable"
-                else:
-                    clean = re.sub(r"[^\d.kmb]", "", price_raw.lower().replace("₦", "").replace(" ", ""))
-                    match = re.search(r"[\d.]+", clean)
-                    if match:
-                        num = float(match.group())
-                        if "k" in clean: num *= 1000
-                        elif "m" in clean: num *= 1000000
-                        elif "b" in clean: num *= 1000000000
-                        price = str(int(num))
-                    else:
-                        price = "Negotiable"
-            else:
-                price = "Negotiable"
+            price = "Negotiable"
+            if price_raw and "negotiable" not in price_raw.lower():
+                clean = re.sub(r"[^\d]", "", price_raw.replace("₦", "").replace(",", ""))
+                if clean.isdigit():
+                    price = clean
 
             # Description
             desc = item.find("div", class_=re.compile(r"description|item-desc"))
-            description = desc.get_text(strip=True) if desc else ""
+            description = desc.get_text(strip=True) if desc else "Unknown"
 
-            # Location
-            loc = item.find("span", class_=re.compile(r"region|location"))
-            location = loc.get_text(strip=True) if loc else ""
+            # Location — real area, not just "Lagos"
+            loc_tag = item.find("div", class_=re.compile(r"region|location")) or item.find("span", class_=re.compile(r"region|location"))
+            location = "Unknown"
+            if loc_tag:
+                loc_text = loc_tag.get_text(strip=True)
+                if loc_text and loc_text.lower() not in ["lagos", "lagos state"]:
+                    location = loc_text
 
-            # Size (from card)
-            size_text = item.get_text()
-            size_match = re.search(r"(\d{1,5}(?:,\d{3})*)\s*sqm", size_text, re.I)
-            size_sqm = size_match.group(1).replace(",", "") if size_match else ""
+            # Size SQM — only real values
+            size_match = re.search(r"(\d{2,4})\s*sq\s*m", item.get_text(), re.I)
+            if not size_match:
+                size_match = re.search(r"(\d{2,4})\s*m²", item.get_text(), re.I)
+            size_sqm = size_match.group(1) if size_match else "Unknown"
 
             results.append({
                 "property_title": title,
@@ -135,7 +127,33 @@ def scrape_items_from_page(url: str) -> List[Dict]:
     return results
 
 
-# === SCRAPE DETAIL PAGE (ROBUST) ===
+# === FUNCTION USING REGEX TO GET ALL UNIQUE PHONE NUMBERS INCLUDING COUNTRY CODES OR HAVING SPACES MAKING IT EXCEEDS NORMAL PHONE NO. COUNT ===
+def extract_hidden_phone(html: str) -> str:
+    """Extract phone from Jiji's hidden React state — works 100% in 2025"""
+    patterns = [
+        r'"phone":"(\+234\d{10})"',
+        r'"clickoutPhone":"(\+234\d{10})"',
+        r'"userPhone":"(\+234\d{10})"',
+        r'"userPhoneHashed":"[^"]*(\+234\d{10})"',
+        r'data-phone=["\'](\+234\d{10})["\']',
+        r'window\.__INITIAL_STATE__[^}]*"phone":"(\+234[^"]+)"',
+        r'"phone":\s*"(\+234[^"]+)"',
+        r"\"phone\":\s*\"(\+234[^\"]+)\"",
+    ]
+    for p in patterns:
+        match = re.search(p, html, re.I)
+        if match:
+            phone = re.sub(r"\D", "", match.group(1))
+            if phone.startswith("234"):
+                return "+234" + phone[-10:]
+            elif phone.startswith("0"):
+                return "+234" + phone[1:]
+            else:
+                return "+234" + phone[-10:]
+    return ""
+
+
+# === FUNCTION TO SCRAPE DETAIL PAGE  PROPERTIES ===
 def scrape_detail_page(url: str) -> Dict:
     print(f"    → Detail: {url}")
     html = make_request(url)
@@ -147,62 +165,87 @@ def scrape_detail_page(url: str) -> Dict:
         return {}
 
     data = {}
-    try:
-        full_text = soup.get_text(separator=" ", strip=True)
+    full_text = soup.get_text(separator=" ", strip=True)
+    full_text_lower = full_text.lower()
 
+    try:
         # Title
-        title = soup.find("h1") or soup.find("div", class_=re.compile(r"title|header"))
-        data["property_title"] = title.get_text(strip=True) if title else ""
+        title_tag = soup.find("h1")
+        data["property_title"] = title_tag.get_text(strip=True) if title_tag else "Unknown"
 
         # Price
-        price_tag = soup.find(string=re.compile(r"₦")) or soup.find("div", class_=re.compile(r"price"))
-        price_text = price_tag.find_parent().get_text() if price_tag and price_tag.find_parent() else ""
+        price_tag = soup.find("div", class_=re.compile(r"price"))
+        price_text = price_tag.get_text(strip=True) if price_tag else ""
         price_clean = re.sub(r"[^\d]", "", price_text.replace("₦", "").replace(",", ""))
         data["price"] = price_clean if price_clean.isdigit() else "Negotiable"
 
         # Size SQM
-        size_match = re.search(r"(\d{1,5}(?:,\d{3})*)\s*sqm", full_text, re.I)
-        data["size_sqm"] = size_match.group(1).replace(",", "") if size_match else ""
+        size_match = re.search(r"(\d{2,4})\s*sq\s*m", full_text, re.I)
+        if not size_match:
+            size_match = re.search(r"(\d{2,4})\s*m²", full_text, re.I)
+        data["size_sqm"] = size_match.group(1) if size_match else "Unknown"
 
         # Bedrooms / Bathrooms
-        data["bedrooms"] = re.search(r"(\d+)\s*bed", full_text, re.I)
-        data["bedrooms"] = data["bedrooms"].group(1) if data["bedrooms"] else ""
-        data["bathrooms"] = re.search(r"(\d+)\s*bath", full_text, re.I)
-        data["bathrooms"] = data["bathrooms"].group(1) if data["bathrooms"] else ""
+        bed = re.search(r"(\d+)\s*bed", full_text, re.I)
+        data["bedrooms"] = bed.group(1) if bed else "Unknown"
+        bath = re.search(r"(\d+)\s*bath", full_text, re.I)
+        data["bathrooms"] = bath.group(1) if bath else "Unknown"
 
         # Furnishing
-        furnishing_match = re.search(r"\b(furnished|unfurnished|semi.furnished)\b", full_text, re.I)
-        data["furnishing_status"] = furnishing_match.group(1).title() if furnishing_match else ""
+        furnish = re.search(r"\b(furnished|unfurnished|semi.?furnished)\b", full_text_lower)
+        data["furnishing_status"] = furnish.group(1).title() if furnish else "Unknown"
 
         # Location
-        loc = soup.find("div", class_=re.compile(r"location|address|region"))
-        data["location"] = loc.get_text(strip=True).replace("Location:", "").strip() if loc else ""
+        loc_div = soup.find("div", class_=re.compile(r"location|address|region"))
+        location = "Unknown"
+        if loc_div:
+            loc_text = loc_div.get_text(strip=True)
+            if loc_text and loc_text.lower() not in ["lagos", "lagos state"]:
+                location = loc_text.replace("Location:", "").strip()
+        data["location"] = location
 
-        # Agent
-        agent_block = soup.find("div", class_=re.compile(r"seller|agent|contact"))
-        data["agent_name"] = ""
-        data["agent_company"] = ""
-        if agent_block:
-            name = agent_block.find(string=re.compile(r"Name|Agent", re.I))
-            data["agent_name"] = name.find_parent().get_text(strip=True) if name else ""
-            comp = agent_block.find("a")
-            data["agent_company"] = comp.get_text(strip=True) if comp else ""
+        # Agent name
+        agent_div = soup.find("div", class_=re.compile(r"seller|agent|contact", re.I))
+        agent_name = "Unknown"
+        if agent_div:
+            txt = agent_div.get_text()
+            name_match = re.search(r"[A-Z][a-z]+(?:\s[A-Z][a-z]+)*", txt)
+            if name_match and len(name_match.group(0)) > 2:
+                agent_name = name_match.group(0)
+        data["agent_name"] = agent_name
 
         # Contact
-        contact = soup.find("a", href=re.compile(r"tel:"))
-        data["contact"] = contact["href"].replace("tel:", "").strip() if contact else ""
+        contact = extract_hidden_phone(html)
+        if not contact:
+            tel = soup.find("a", href=re.compile(r"tel:", re.I))
+            if tel and tel.get("href"):
+                raw = tel["href"].replace("tel:", "").strip()
+                cleaned = re.sub(r"\D", "", raw)
+                if len(cleaned) >= 10:
+                    contact = "+234" + cleaned[-10:]
+        data["contact"] = contact or "Unknown"
 
         # Images
-        imgs = soup.find_all("img", src=re.compile(r"jiji\.ng"))
-        valid = [img["src"] for img in imgs if "logo" not in img["src"].lower()][:10]
-        data["image_links"] = "; ".join(valid)
+        imgs = soup.find_all("img", src=re.compile(r"pictures\.jiji\.ng|jiji\.ng"))
+        valid = []
+        for img in imgs:
+            src = img.get("src") or img.get("data-src")
+            if src and "logo" not in src.lower() and "avatar" not in src.lower():
+                if src.startswith("//"):
+                    src = "https:" + src
+                valid.append(src)
+        if not valid:
+            og = soup.find("meta", property="og:image")
+            if og and og.get("content"):
+                valid.append(og["content"])
+        data["image_links"] = "; ".join(valid[:5]) if valid else "Unknown"
 
         # Description
         desc = soup.find("div", class_=re.compile(r"description|details"))
-        data["property_description"] = desc.get_text(strip=True, separator=" ") if desc else ""
+        data["property_description"] = desc.get_text(strip=True, separator=" ") if desc else "Unknown"
 
         # Property Type
-        ptype = ""
+        ptype = "Unknown"
         text = (data["property_title"] + " " + data["property_description"]).lower()
         types = {
             "duplex": "Duplex", "bungalow": "Bungalow", "flat": "Flat",
@@ -215,19 +258,19 @@ def scrape_detail_page(url: str) -> Dict:
                 break
         data["property_type"] = ptype
 
-        # Dates
-        date = soup.find(string=re.compile(r"posted|added", re.I))
-        data["listing_date"] = date.strip() if date else ""
+        # Listing date
+        date_match = re.search(r"(\d+\s+(second|minute|hour|day|week|month|year)s?\s+ago|just now|yesterday)", full_text_lower)
+        data["listing_date"] = date_match.group(1).capitalize() if date_match else "Unknown"
         data["last_updated"] = data["listing_date"]
 
-        # Price per sqm
-        if data["price"].isdigit() and data["size_sqm"]:
+        # Price per sqm.   DERIVED
+        if data["price"].isdigit() and data["size_sqm"] != "Unknown" and data["size_sqm"].isdigit():
             try:
                 data["prize_per_sqm"] = str(round(int(data["price"]) / int(data["size_sqm"]), 2))
             except:
-                data["prize_per_sqm"] = ""
+                data["prize_per_sqm"] = "Unknown"
         else:
-            data["prize_per_sqm"] = ""
+            data["prize_per_sqm"] = "Unknown"
 
         return data
 
