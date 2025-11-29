@@ -1,7 +1,4 @@
 pandas
-numpy
 beautifulsoup4
 requests
-geopy
-matplotlib
-seaborn
+
