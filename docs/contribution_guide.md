@@ -91,8 +91,8 @@ git push origin <your-branch-name>
 If your PR is pending and main has changed, rebase or merge the latest updates:
 
 ```bash
-git checkout main
-git pull origin main
+git checkout develop
+git pull origin develop
 git checkout <your-branch-name>
 git merge main
 ```
